@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajax Test</title>
+</head>
+
+<body>
+    <div class="container">
+        <ul id="sectors">
+        </ul>
+        <button onclick="afficher()" id="btn">Charger</button>
+    </div>
+
+    <script>
+        let afficher = function() {
+            let textCharegement = document.createElement('p');
+            textCharegement.innerHTML = 'Chargement...';
+            const listeSectors = document.querySelector('#sectors');
+            listeSectors.appendChild(textCharegement);
+            fetch('http://172.30.1.31:8000/api/sectors')
+                .then(
+                    function(response) {
+                        if (response.status !== 200) {
+                            console.log('Looks like there was a problem. Status Code: ' +
+                                response.status);
+                            return;
+                        }
+
+                        // Examine the text in the response
+                        response.json().then(function(data) {
+                            textCharegement.innerHTML = '';
+
+                            for (let content in data) {
+                                let listeSubSector = document.createElement('ul');
+                                let sectorName = document.createElement("li");
+                                sectorName.innerHTML = data[content].name;
+                                listeSectors.appendChild(sectorName);
+                                let subsectorListe = document.createElement('ul');
+                                sectorName.appendChild(subsectorListe);
+                                let typeSubsector = typeof(data[content].subsectors);
+                                console.log(`${content} -- ${data[content].name} -- ${data[content].subsectors.length} -- type : ${typeSubsector}`);
+
+                                for (subsectorContent of data[content].subsectors) {
+                                    let subsectorName = document.createElement('li');
+                                    subsectorName.innerHTML = subsectorContent.name;
+                                    subsectorListe.appendChild(subsectorName);
+
+                                    console.log(subsectorContent.name);
+                                }
+                            }
+                            console.log(`OK`);
+                        });
+                    }
+                )
+                .catch(function(err) {
+                    console.log('Fetch Error :-S', err);
+                });
+        }
+    </script>
+</body>
+
+</html>
